@@ -39,5 +39,14 @@ class UserServiceImplTest {
         System.out.println(user.getId());
         Assertions.assertTrue(result);
     }
+    @Test
+    void userRegisterTest(){
+        String userAccount = "12@3";
+        String userPassword = "12345678";
+        String checkPassword = "12345678";
+        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        Assertions.assertEquals(-1,result);
+    }
+
 
 }

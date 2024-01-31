@@ -1,6 +1,8 @@
 server:
   port: 8080
 spring:
+  session:
+    timeout: 86400
   datasource:
     password: 123456
     url: jdbc:mysql://localhost:3306/user_center?useUnicode=true&characterEncoding=utf-8&autoReconnect=true&serverTimezone=Asia/Shanghai
@@ -8,3 +10,9 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   application:
     name: user-center
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-field:  is_deleted
+      logic-delete-value:  1
+      logic-not-delete-value: 0
