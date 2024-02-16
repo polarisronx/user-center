@@ -1,11 +1,11 @@
-package com.polaris.usercenter.service.impl;
+package com.polaris.userCenter.service.impl;
 
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.polaris.usercenter.mapper.UserMapper;
-import com.polaris.usercenter.model.domain.User;
-import com.polaris.usercenter.service.UserService;
+import com.polaris.userCenter.mapper.UserMapper;
+import com.polaris.userCenter.model.domain.User;
+import com.polaris.userCenter.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -15,7 +15,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static com.polaris.usercenter.constant.UserContant.*;
+import static com.polaris.userCenter.constant.UserConstant.*;
 
 
 /**
@@ -28,10 +28,13 @@ import static com.polaris.usercenter.constant.UserContant.*;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     implements UserService {
 
-
+    /*
+     * @author polaris
+     * @description 用户注册
+     **/
     @Override
-    public long userRegister (String userAccount, String userPassword, String checkPassword){
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)){
+    public long userRegister (String userAccount, String userPassword, String checkPassword,String authCode){
+        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,authCode)){
             log.info("用户注册信息不能为空");
             return -1;
         }
@@ -52,6 +55,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("用户名包含特殊字符");
             return -1;
         }
+        // 查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_account",userAccount);
         long count = this.count(queryWrapper);
@@ -59,17 +63,33 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             log.info("用户名已存在");
             return -1;
         }
+        // 查询授权码是否重复
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("auth_code",authCode);
+        count = this.count(queryWrapper);
+        if (count>0){
+            log.info("授权码已被使用");
+            return -1;
+        }
         User user = new User();
         user.setUserAccount(userAccount);
         // 对密码进行加密处理
         String encodePassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         user.setUserPassword(encodePassword);
-        this.save(user);
+        user.setAuthCode(authCode);
+        boolean result = this.save(user);
+        if (!result){
+            return -1;
+        }
         return user.getId();
     }
 
+    /*
+     * @author polaris
+     * @description 用户登录
+     **/
     @Override
-    public User Userlogin (String userAccount, String userPassword, HttpServletRequest request){
+    public User UserLogin (String userAccount, String userPassword, HttpServletRequest request){
         if (StringUtils.isAnyBlank(userAccount, userPassword)){
             log.info("用户注册信息不能为空");
             return null;
@@ -106,12 +126,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
 
 
     }
+
+    /*
+     * @author polaris
+     * @description 用户信息脱敏
+     **/
     public User filterUserSafetyInfo(User originalUser){
         if (originalUser==null){
             return null;
         }
         User secureUser = new User();
-        secureUser.setId(secureUser.getId());
+        secureUser.setId(originalUser.getId());
         secureUser.setUserAccount(originalUser.getUserAccount());
         secureUser.setNickname(originalUser.getNickname());
         secureUser.setAvatarUrl(originalUser.getAvatarUrl());
@@ -120,6 +145,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         secureUser.setEmail(originalUser.getEmail());
         secureUser.setUserStatus(originalUser.getUserStatus());
         secureUser.setCreateTime(originalUser.getCreateTime());
+        secureUser.setAuthCode(originalUser.getAuthCode());
         secureUser.setUserRole(originalUser.getUserRole());
         return  secureUser;
     }
@@ -131,6 +157,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
             return false;
         }
         return user.getUserRole()==ADMIN_ROLE;
+    }
+
+    /*
+     * @author polaris
+     * @create 2024/2/15
+     * @description 用户注销
+     **/
+    @Override
+    public int UserLogout (HttpServletRequest request){
+        request.getSession().removeAttribute(USER_LOGIN_STATUS);
+        return 1;
     }
 }
 

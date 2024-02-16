@@ -1,4 +1,4 @@
-package com.polaris.usercenter.model.UserRequest;
+package com.polaris.userCenter.model.UserRequest;
 
 import lombok.Data;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
  * @Create 2024-01-31 14:40
  * @Version 1.0
  * ClassName RegisterRequest
- * Package com.polaris.usercenter.model.UserRequest
+ * Package com.polaris.userCenter.model.UserRequest
  * Description
  */
 @Data
@@ -18,4 +18,5 @@ public class RegisterRequest implements Serializable {
     private String userAccount;
     private String userPassword;
     private String checkPassword;
+    private String authCode;
 }

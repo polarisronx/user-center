@@ -1,11 +1,10 @@
-package com.polaris.usercenter.service.impl;
+package com.polaris.userCenter.service.impl;
 
-import com.polaris.usercenter.model.domain.User;
-import com.polaris.usercenter.service.UserService;
+import com.polaris.userCenter.model.domain.User;
+import com.polaris.userCenter.service.UserService;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
@@ -44,7 +43,8 @@ class UserServiceImplTest {
         String userAccount = "12@3";
         String userPassword = "12345678";
         String checkPassword = "12345678";
-        long result = userService.userRegister(userAccount, userPassword, checkPassword);
+        String authCode = "1234";
+        long result = userService.userRegister(userAccount, userPassword, checkPassword,authCode);
         Assertions.assertEquals(-1,result);
     }
 

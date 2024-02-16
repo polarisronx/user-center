@@ -1,14 +1,14 @@
-package com.polaris.usercenter.constant;
+package com.polaris.userCenter.constant;
 
 /**
  * @Author Administrator
  * @Create 2024-01-31 13:53
  * @Version 1.0
- * ClassName userContant
- * Package com.polaris.usercenter.constant
+ * ClassName userConstant
+ * Package com.polaris.userCenter.constant
  * Description
  */
-public interface UserContant {
+public interface UserConstant {
     String SALT = "polaris";
     String USER_LOGIN_STATUS = "user_login_status";
     int ADMIN_ROLE = 1;

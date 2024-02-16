@@ -1,4 +1,4 @@
-package com.polaris.usercenter.model.domain;
+package com.polaris.userCenter.model.domain;
 
 
 import java.io.Serializable;
@@ -93,6 +93,12 @@ public class User implements Serializable {
     @TableField(value = "nickname")
     private String nickname;
 
+    /**
+     * 授权码
+     */
+    @TableField(value = "auth_code")
+    private String authCode;
+
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 
@@ -107,9 +113,10 @@ public class User implements Serializable {
         if (getClass() != that.getClass()) {
             return false;
         }
-        generator.domain.User other = (generator.domain.User) that;
+        User other = (User) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
                 && (this.getUserAccount() == null ? other.getUserAccount() == null : this.getUserAccount().equals(other.getUserAccount()))
+                && (this.getNickname() == null ? other.getNickname() == null : this.getNickname().equals(other.getNickname()))
                 && (this.getAvatarUrl() == null ? other.getAvatarUrl() == null : this.getAvatarUrl().equals(other.getAvatarUrl()))
                 && (this.getGender() == null ? other.getGender() == null : this.getGender().equals(other.getGender()))
                 && (this.getUserPassword() == null ? other.getUserPassword() == null : this.getUserPassword().equals(other.getUserPassword()))
@@ -120,7 +127,7 @@ public class User implements Serializable {
                 && (this.getUpdateTime() == null ? other.getUpdateTime() == null : this.getUpdateTime().equals(other.getUpdateTime()))
                 && (this.getIsDelete() == null ? other.getIsDelete() == null : this.getIsDelete().equals(other.getIsDelete()))
                 && (this.getUserRole() == null ? other.getUserRole() == null : this.getUserRole().equals(other.getUserRole()))
-                && (this.getNickname() == null ? other.getNickname() == null : this.getNickname().equals(other.getNickname()));
+                && (this.getAuthCode() == null ? other.getAuthCode() == null : this.getAuthCode().equals(other.getAuthCode()));
     }
 
     @Override
@@ -129,6 +136,7 @@ public class User implements Serializable {
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
         result = prime * result + ((getUserAccount() == null) ? 0 : getUserAccount().hashCode());
+        result = prime * result + ((getNickname() == null) ? 0 : getNickname().hashCode());
         result = prime * result + ((getAvatarUrl() == null) ? 0 : getAvatarUrl().hashCode());
         result = prime * result + ((getGender() == null) ? 0 : getGender().hashCode());
         result = prime * result + ((getUserPassword() == null) ? 0 : getUserPassword().hashCode());
@@ -139,7 +147,7 @@ public class User implements Serializable {
         result = prime * result + ((getUpdateTime() == null) ? 0 : getUpdateTime().hashCode());
         result = prime * result + ((getIsDelete() == null) ? 0 : getIsDelete().hashCode());
         result = prime * result + ((getUserRole() == null) ? 0 : getUserRole().hashCode());
-        result = prime * result + ((getNickname() == null) ? 0 : getNickname().hashCode());
+        result = prime * result + ((getAuthCode() == null) ? 0 : getAuthCode().hashCode());
         return result;
     }
 
@@ -151,6 +159,7 @@ public class User implements Serializable {
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
         sb.append(", userAccount=").append(userAccount);
+        sb.append(", nickname=").append(nickname);
         sb.append(", avatarUrl=").append(avatarUrl);
         sb.append(", gender=").append(gender);
         sb.append(", userPassword=").append(userPassword);
@@ -161,7 +170,7 @@ public class User implements Serializable {
         sb.append(", updateTime=").append(updateTime);
         sb.append(", isDelete=").append(isDelete);
         sb.append(", userRole=").append(userRole);
-        sb.append(", nickname=").append(nickname);
+        sb.append(", authCode=").append(authCode);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
