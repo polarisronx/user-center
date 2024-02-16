@@ -10,9 +10,18 @@ package com.polaris.userCenter.common;
  */
 public class ResultUtil {
     public static <T> BaseResponse<T> success(T data){
-        return new BaseResponse<>(0, "", data);
+        return new BaseResponse<>(ResponseCode.SUCCESS.getCode(), "", data);
     }
-    public static <T> BaseResponse<T> error(){
-        return new BaseResponse<>(-1, "", null);
+    public static BaseResponse error(ResponseCode code){
+        return new BaseResponse<>(code);
+    }
+    public static BaseResponse error(ResponseCode code, String message,String description){
+         return new BaseResponse<>(code,message,description);
+    }
+    public static BaseResponse error(ResponseCode code,String description){
+        return new BaseResponse<>(code,description);
+    }
+    public static BaseResponse error(int code,String message,String description){
+        return new BaseResponse<>(code,message,description);
     }
 }

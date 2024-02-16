@@ -3,6 +3,8 @@ package com.polaris.userCenter.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.polaris.userCenter.common.ResponseCode;
+import com.polaris.userCenter.exception.BusinessException;
 import com.polaris.userCenter.mapper.UserMapper;
 import com.polaris.userCenter.model.domain.User;
 import com.polaris.userCenter.service.UserService;
@@ -35,41 +37,34 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public long userRegister (String userAccount, String userPassword, String checkPassword,String authCode){
         if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword,authCode)){
-            log.info("用户注册信息不能为空");
-            return -1;
+            throw new BusinessException(ResponseCode.NULL_ERROR,"用户注册信息不能为空");
         }
         if (userAccount.length()< 4){
-            log.info("用户账号长度不能少于4位");
-            return -1;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户账号长度不能少于4位");
         }
         if (userPassword.length()< 8){
-            log.info("用户密码长度不能少于8位");
-            return -1;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户密码长度不能少于8位");
         }
         if (!userPassword.equals(checkPassword)){
-            log.info("两次密码输入不一致");
-            return -1;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"两次密码输入不一致");
         }
         Matcher matcher = Pattern.compile("[ _`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]|\\n|\\r|\\t").matcher(userAccount);
         if (matcher.find()){
-            log.info("用户名包含特殊字符");
-            return -1;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户名包含特殊字符");
         }
         // 查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("user_account",userAccount);
         long count = this.count(queryWrapper);
         if (count>0){
-            log.info("用户名已存在");
-            return -1;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户名已存在");
         }
         // 查询授权码是否重复
         queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("auth_code",authCode);
         count = this.count(queryWrapper);
         if (count>0){
-            log.info("授权码已被使用");
-            return -1;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"授权码已被使用");
         }
         User user = new User();
         user.setUserAccount(userAccount);
@@ -79,7 +74,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         user.setAuthCode(authCode);
         boolean result = this.save(user);
         if (!result){
-            return -1;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"注册失败");
         }
         return user.getId();
     }
@@ -91,21 +86,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
     @Override
     public User UserLogin (String userAccount, String userPassword, HttpServletRequest request){
         if (StringUtils.isAnyBlank(userAccount, userPassword)){
-            log.info("用户注册信息不能为空");
-            return null;
+            throw new BusinessException(ResponseCode.NULL_ERROR,"用户登录信息不能为空");
         }
         if (userAccount.length()< 4){
-            log.info("用户账号长度不能少于4位");
-            return null;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户账号长度不能少于4位");
         }
         if (userPassword.length()< 8){
-            log.info("用户密码长度不能少于8位");
-            return null;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户密码长度不能少于8位");
         }
         Matcher matcher = Pattern.compile("[ _`~!@#$%^&*()+=|{}':;',\\\\[\\\\].<>/?~！@#￥%……&*（）——+|{}【】‘；：”“’。，、？]|\\n|\\r|\\t").matcher(userAccount);
         if (matcher.find()){
-            log.info("用户名包含特殊字符");
-            return null;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户名包含特殊字符");
         }
         // 密码加密处理
         String encodePassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
@@ -115,8 +106,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         queryWrapper.eq("user_password",encodePassword);
         User user = baseMapper.selectOne(queryWrapper);
         if (user==null){
-            log.info("User failed to login:The account can not match the password,please check again!");
-            return null;
+            throw new BusinessException(ResponseCode.PARAMS_ERROR,"用户登录失败，请检查账号和密码！");
         }
         // 用户信息脱敏
         User secureUser = filterUserSafetyInfo(user);
@@ -133,7 +123,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      **/
     public User filterUserSafetyInfo(User originalUser){
         if (originalUser==null){
-            return null;
+            throw new BusinessException(ResponseCode.NULL_ERROR,"用户不存在");
         }
         User secureUser = new User();
         secureUser.setId(originalUser.getId());
@@ -154,7 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
         Object userObj = request.getSession().getAttribute(USER_LOGIN_STATUS);
         User user = (User)userObj;
         if (user==null){
-            return false;
+            throw new BusinessException(ResponseCode.NOT_LOGIN_ERROR);
         }
         return user.getUserRole()==ADMIN_ROLE;
     }
@@ -166,6 +156,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User>
      **/
     @Override
     public int UserLogout (HttpServletRequest request){
+        if (request==null){
+            throw new BusinessException(ResponseCode.PARAMS_ERROR);
+        }
         request.getSession().removeAttribute(USER_LOGIN_STATUS);
         return 1;
     }

@@ -17,20 +17,33 @@ public class BaseResponse<T> implements Serializable {
     private  Integer code;
     private  String message;
     private T data;
+    private String description;
 
-    public BaseResponse (Integer code, String message, T data){
+    public BaseResponse (Integer code, String message, T data,String description){
         this.code = code;
         this.message = message;
         this.data = data;
+        this.description = description;
     }
 
+    public BaseResponse (Integer code, String message, T data){
+         this(code,message,data,"");
+     }
+
     public BaseResponse (Integer code, String message){
-        this.code = code;
-        this.message = message;
+        this(code, message,null,"");
     }
 
     public BaseResponse (Integer code, T data){
-        this.code = code;
-        this.data = data;
+        this(code,null,data,"");
+    }
+    public BaseResponse (ResponseCode code){
+         this(code.getCode(),code.getMessage(),null,code.getDescription());
+    }
+    public BaseResponse (ResponseCode code, String description){
+         this(code.getCode(), code.getMessage(),null,description);
+    }
+    public BaseResponse (ResponseCode code, String message,String description){
+        this(code.getCode(),message,null,description);
     }
 }
