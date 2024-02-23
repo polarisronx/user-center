@@ -8,15 +8,15 @@ import com.polaris.userCenter.exception.BusinessException;
 import com.polaris.userCenter.model.UserRequest.LoginRequest;
 import com.polaris.userCenter.model.UserRequest.RegisterRequest;
 import com.polaris.userCenter.model.domain.User;
+import com.polaris.userCenter.service.PythonService;
 import com.polaris.userCenter.service.UserService;
-import java.util.Collections;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.executor.keygen.NoKeyGenerator;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -36,6 +36,8 @@ public class UserController {
 
     @Resource
     private UserService userService;
+    @Resource
+    private PythonService pythonService;
 
     /*
      * @author polaris
@@ -127,5 +129,25 @@ public class UserController {
         // todo 校验用户是否合法
         User currentUser = (User)userObject;
         return ResultUtil.success(userService.filterUserSafetyInfo(userService.query().eq("id", currentUser.getId()).one()));
+    }
+
+    /*
+     *
+     * @param RegisterRequest
+     * @description 用feign远程调用python写的用户注册服务，该服务注册在 nacos 微服务注册中心上，
+     * 该服务需要接收一个application/json格式的数据，该数据包含用户名和密码.
+     * 该服务用Django框架搭建.端口8000.请求地址
+     *  http://127.0.0.1:8000/user/register
+     * 运用feign本地远程调用地址
+     *  http://127.0.0.1:8080/api/user/python/register
+     * @author polaris
+     * @create 2024/2/23
+     **/
+    @PostMapping("/python/register")
+    public BaseResponse<HashMap<String,Object>> pythonRegister(@RequestBody RegisterRequest registerRequest){
+        HashMap<String, Object> map;
+        map = pythonService.userRegister(registerRequest);
+        System.out.println(map);
+        return ResultUtil.success(map);
     }
 }

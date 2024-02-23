@@ -12,9 +12,18 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
   application:
     name: user-center
+  cloud:
+    nacos:
+      discovery:
+        server-addr: localhost:8848
+
 mybatis-plus:
   global-config:
     db-config:
       logic-delete-field:  is_deleted
       logic-delete-value:  1
       logic-not-delete-value: 0
+
+#消费者将要去访问的微服务名称(注册成功进nacos的微服务提供者)
+service-url:
+  nacos-user-service: http://service-django
